@@ -1,6 +1,6 @@
 # Litex on Alchitry Cu
 
-This repo contains examples of using Litex on the Alchitry Cu board. I created this repo as there are very few examples for the Alchitry Cu board
+This repo contains examples of using Litex on the Alchitry Cu board. I created this repo when I added support for the board in Litex and as there are very few examples for the Alchitry Cu board. 
 
 Some of the examples are ported from the [FPGA 101 repo](https://github.com/litex-hub/fpga_101.git) from Litex hub. Credits to the authors for making this awesome project.
 
@@ -11,12 +11,12 @@ Some of the examples are ported from the [FPGA 101 repo](https://github.com/lite
 
 ## Examples
 
-1. Blinky: Blinky example based on Lab002/blinker in FPGA 101
+1. Lab001 - **Blinky:** Blinky example based on Lab002/blinker in FPGA 101
+2. Lab002 - **SoC:** SoC example based on Lab003 in FPGA 101 ported for Alchitry Cu
+3. Lab003 - Adding a custom core to the SoC
+4. Lab004 - SoC with RISC-V CPU
 
-**Status:** Tested on board
+## TODO
 
-2. SoC: SoC example based on Lab003 in FPGA 101 ported for Alchitry Cu
-
-**Status:** Tested on board
-
-3. 
+1. Update Blinky example with a PLL
+2. 
