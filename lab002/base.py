@@ -13,9 +13,6 @@ from litex.soc.cores.uart import UARTWishboneBridge
 
 from litex.soc.cores import gpio
 
-kB = 1024
-mB = 1024*kB
-
 # GPIO -------------------------------------------------------------------------------------------
 
 class Led(gpio.GPIOOut):
@@ -29,26 +26,30 @@ class Led(gpio.GPIOOut):
 platform = alchitry_cu.Platform()
 
 # Create our soc (fpga description)
-class BaseSoC(SoCCore):
-    def __init__(self, platform):
+class BaseSoC(SoCMini):
+    def __init__(self, platform, **kwargs):
         sys_clk_freq = int(100e6)
 
-        # SoC with CPU
-        SoCCore.__init__(self, platform,
-            cpu_type                 = "serv",
-            clk_freq                 = 100e6,
-            ident                    = "LiteX CPU Test SoC", ident_version=True,
-            integrated_rom_size      = 0,
-            integrated_sram_size     = 2*kB)
+        # SoCMini (No CPU, we are controlling the SoC over UART)
+        SoCMini.__init__(self, platform, sys_clk_freq, csr_data_width=32,
+            ident="My first LiteX System On Chip on Alchitry Cu", ident_version=True)
 
         # Clock Reset Generation
         self.submodules.crg = CRG(platform.request("clk100"), ~platform.request("cpu_reset"))
 
+        # No CPU, use Serial to control Wishbone bus
+        self.submodules.serial_bridge = UARTWishboneBridge(platform.request("serial"), sys_clk_freq)
+        self.add_wb_master(self.serial_bridge.wishbone)
+
+        from litespi.modules import W25Q32
+        from litespi.opcodes import SpiNorFlashOpCodes as Codes
+        self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
+
         # Led
-        # self.leds = LedChaser(pads=platform.request_all("user_led"), sys_clk_freq=sys_clk_freq)
         user_leds = Cat(*[platform.request("user_led", i) for i in range(8)])
         self.submodules.leds = Led(user_leds)
         self.add_csr("leds")
+
 
 soc = BaseSoC(platform)
 
