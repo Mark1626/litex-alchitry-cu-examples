@@ -54,22 +54,17 @@ class _CRG(LiteXModule):
 
 # Create our soc (fpga description)
 class BaseSoC(SoCCore):
-    # mem_map = {**SoCCore.mem_map, **{"spiflash": 0x20000000}}
     def __init__(self, bios_flash_offset, sys_clk_freq=50e6, **kwargs):
         # Create our platform (fpga interface)
         platform = alchitry_cu.Platform()
 
         # Disable Integrated ROM since too large for iCE40.
         kwargs["integrated_rom_size"]  = 0
-        # kwargs["integrated_sram_size"] = 4*kB
-
-        # Set CPU variant / reset address
-        # kwargs["cpu_reset_address"] = self.mem_map["spiflash"] + bios_flash_offset
 
         # SoC with CPU
         SoCCore.__init__(self, platform, sys_clk_freq,
             cpu_type                 = "vexriscv",
-            cpu_variant              = "lite+debug",
+            cpu_variant              = "lite",
             ident                    = "LiteX SoC on Alchitry Cu",
             ident_version            = True,
             **kwargs)
@@ -85,7 +80,7 @@ class BaseSoC(SoCCore):
         # Add ROM linker region --------------------------------------------------------------------
         self.bus.add_region("rom", SoCRegion(
             origin = self.bus.regions["spiflash"].origin + bios_flash_offset,
-            size   = 32*kB,
+            size   = 256*kB,
             linker = True)
         )
         self.cpu.set_reset_address(self.bus.regions["rom"].origin)
@@ -93,19 +88,10 @@ class BaseSoC(SoCCore):
         # Led
         self.submodules.leds = LedChaser(pads=platform.request_all("user_led"), sys_clk_freq=sys_clk_freq)
 
-        # Serial bridge
-        # self.submodules.uart_bridge = UARTWishboneBridge(platform.request("serial"), sys_clk_freq, baudrate=115200)
-        # self.add_wb_master(self.uart_bridge.wishbone)
-
-        # user_leds = Cat(*[platform.request("user_led", i) for i in range(8)])
-        # self.submodules.leds = Led(user_leds)
-        # self.add_csr("leds")
-
-# bios_flash_offset = 0x021000
 bios_flash_offset = 0x50000
-soc = BaseSoC(bios_flash_offset)
+soc = BaseSoC(bios_flash_offset, sys_clk_freq=50e6)
 
 # Build --------------------------------------------------------------------------------------------
 
-builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv", csr_json="test/csr.json")
+builder = Builder(soc, output_dir="build", csr_csv="test/csr.csv")
 builder.build(build_name="top")

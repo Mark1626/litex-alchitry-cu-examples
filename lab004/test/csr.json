@@ -150,7 +150,7 @@
         },
         "sram": {
             "base": 268435456,
-            "size": 8192,
+            "size": 4096,
             "type": "cached"
         },
         "spiflash": {
