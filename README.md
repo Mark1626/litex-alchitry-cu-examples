@@ -9,6 +9,8 @@ Some of the examples are ported from the [FPGA 101 repo](https://github.com/lite
 1. Litex - https://github.com/enjoy-digital/litex/wiki/Installation
 2. Project ICEStorm
 
+Support for this board was added in https://github.com/litex-hub/litex-boards/pull/510, if your current Litex installation says the board is not available you may need to pull the latest changes in [litex-boards](https://github.com/litex-hub/litex-boards)
+
 ## Examples
 
 1. Lab001 - **Blinky:** Blinky example based on Lab002/blinker in FPGA 101
