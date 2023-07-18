@@ -5,3 +5,12 @@ build
 *.o
 *.bin
 *.elf
+
+demo
+
+test_run_dir
+target
+.idea
+.bsp
+generated
+

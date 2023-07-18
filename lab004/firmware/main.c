@@ -3,8 +3,8 @@
 #include <string.h>
 
 #include <irq.h>
-#include <uart.h>
-#include <console.h>
+#include <libbase/uart.h>
+#include <libbase/console.h>
 #include <generated/csr.h>
 
 static char *readstr(void)
@@ -14,14 +14,14 @@ static char *readstr(void)
 	static int ptr = 0;
 
 	if(readchar_nonblock()) {
-		c[0] = readchar();
+		c[0] = getchar();
 		c[1] = 0;
 		switch(c[0]) {
 			case 0x7f:
 			case 0x08:
 				if(ptr > 0) {
 					ptr--;
-					putsnonl("\x08 \x08");
+					fputs("\x08 \x08", stdout);
 				}
 				break;
 			case 0x07:
@@ -29,13 +29,13 @@ static char *readstr(void)
 			case '\r':
 			case '\n':
 				s[ptr] = 0x00;
-				putsnonl("\n");
+				fputs("\n", stdout);
 				ptr = 0;
 				return s;
 			default:
 				if(ptr >= (sizeof(s) - 1))
 					break;
-				putsnonl(c);
+				fputs(c, stdout);
 				s[ptr] = c[0];
 				ptr++;
 				break;
@@ -63,31 +63,25 @@ static char *get_token(char **str)
 
 static void prompt(void)
 {
-	printf("RUNTIME>");
+	printf("PROMPT> ");
 }
 
-static void help(void)
-{
-	puts("Available commands:");
-	puts("help                            - this command");
-	puts("reboot                          - reboot CPU");
-	puts("display                         - display test");
-	puts("led                             - led test");
-}
-
-static void reboot(void)
+static void reboot_cmd(void)
 {
 	ctrl_reset_write(1);
 }
 
-static void led_test(void)
+static void print_hello(void)
 {
-	int i;
-	printf("led_test...\n");
-	for(i=0; i<32; i++) {
-		leds_out_write(i);
-		busy_wait(1);
-	}
+	printf("Hello World\n");
+}
+
+static void help(void)
+{
+	printf("\nAvailable commands:\n\n");
+	printf("help        - Show this message\n");
+	printf("reboot      - Reboot CPU\n");
+	printf("hello       - Print Hello World\n");
 }
 
 static void console_service(void)
@@ -96,18 +90,20 @@ static void console_service(void)
 	char *token;
 
 	str = readstr();
+
 	if(str == NULL) return;
 	token = get_token(&str);
 	if(strcmp(token, "help") == 0)
 		help();
 	else if(strcmp(token, "reboot") == 0)
-		reboot();
-	else if(strcmp(token, "led") == 0)
-		led_test();
+		reboot_cmd();
+	else if(strcmp(token, "hello") == 0)
+		print_hello();
+
 	prompt();
 }
 
-int main(void)
+int main(void) 
 {
 #ifdef CONFIG_CPU_HAS_INTERRUPT
 	irq_setmask(0);
@@ -115,11 +111,11 @@ int main(void)
 #endif
 	uart_init();
 
-	puts("\nLab004 - CPU testing software built "__DATE__" "__TIME__"\n");
 	help();
 	prompt();
 
-	while(1) {
+	while(1)
+	{
 		console_service();
 	}
 

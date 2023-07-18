@@ -19,6 +19,12 @@ Building a SoC with a RISC-V VexRiscv CPU
 4. Since the ROM region of the SoC is within the SPIFlash we need to load the bios into the board with `iceprog`
   * `iceprog -o 0x50000 build/software/bios/bios.bin`
 
+5. We can load any bare metal RISC-V application in the same location `0x50000`
+  * Build the litex demo with `litex_bare_metal_demo --build-path build --mem rom`
+  * `iceprog -o 0x50000 demo.bin`
+  * When you connect to the terminal the demo application will start instead of the BIOS as 
+  it is at the CPU reset address
+
 **Timing information from different synthesis runs:**
 
 ```

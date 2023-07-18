@@ -12,7 +12,6 @@ from litex_boards.platforms import alchitry_cu
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
-from litex.soc.cores.uart import UARTWishboneBridge
 
 from litex.soc.cores.clock import iCE40PLL
 from litex.soc.cores.led import LedChaser
@@ -87,6 +86,8 @@ class BaseSoC(SoCCore):
 
         # Led
         self.submodules.leds = LedChaser(pads=platform.request_all("user_led"), sys_clk_freq=sys_clk_freq)
+
+        # self.add_constant("FLASH_BOOT_ADDRESS", 0x60000)
 
 bios_flash_offset = 0x50000
 soc = BaseSoC(bios_flash_offset, sys_clk_freq=50e6)
